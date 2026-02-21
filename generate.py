@@ -29,16 +29,16 @@ CURRENT_COLOR  = "#FF6B35"   # the current week (accent)
 TEXT_COLOR     = "#4A4A4A"   # year labels
 
 # Grid layout
-CELL_SIZE      = 13          # square size in pixels
-CELL_GAP       = 2           # gap between squares
+CELL_SIZE      = 20          # square size in pixels
+CELL_GAP       = 3           # gap between squares
 
-OUTPUT_PATH    = os.path.expanduser("~/Desktop/life_calendar.png")
+OUTPUT_PATH    = os.path.expanduser("~/Pictures/life_calendar.png")
 SET_WALLPAPER  = True        # auto-set as wallpaper after generating
 
 # ─────────────────────────────────────────────────────────────────────────────
 
-COLS = 52   # weeks per row
-ROWS = LIFESPAN_YEARS
+COLS = LIFESPAN_YEARS  # years across (horizontal)
+ROWS = 52              # weeks down (vertical)
 
 
 def load_font(size):
@@ -58,9 +58,9 @@ def load_font(size):
 
 def draw_grid(draw, ox, oy, weeks_past, current_week):
     step = CELL_SIZE + CELL_GAP
-    for row in range(ROWS):
-        for col in range(COLS):
-            idx = row * COLS + col
+    for row in range(ROWS):          # row = week within year (0-51)
+        for col in range(COLS):      # col = year of life (0-89)
+            idx = col * ROWS + row   # = year * 52 + week_within_year
             x = ox + col * step
             y = oy + row * step
             if idx < weeks_past:
@@ -74,13 +74,18 @@ def draw_grid(draw, ox, oy, weeks_past, current_week):
 
 def draw_year_labels(draw, ox, oy, font):
     step = CELL_SIZE + CELL_GAP
-    for year in range(0, ROWS + 1, 10):
-        y = oy + year * step
+    for year in range(0, COLS + 1, 10):
+        x = ox + year * step
         label = str(year)
-        draw.text((ox - 10, y), label, fill=TEXT_COLOR, font=font, anchor="rm")
+        draw.text((x, oy - 8), label, fill=TEXT_COLOR, font=font, anchor="mb")
 
 
 def main():
+    # Ensure output directory exists and remove any existing wallpaper
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    if os.path.exists(OUTPUT_PATH):
+        os.remove(OUTPUT_PATH)
+
     today = date.today()
     total_weeks = ROWS * COLS
     weeks_past = (today - BIRTHDAY).days // 7
@@ -92,13 +97,13 @@ def main():
 
     canvas_w, canvas_h = RESOLUTION
 
-    # Reserve space: 90px top for title, 60px bottom for stats
-    usable_h = canvas_h - 90 - 60
-    label_margin = 36   # space to the left for year labels
+    # Reserve space: 80px top for title, 40px for year labels above grid, 60px bottom for stats
+    label_margin_top = 40   # space above grid for year labels
+    usable_h = canvas_h - 80 - label_margin_top - 60
 
-    # Center the grid horizontally (accounting for left label margin)
-    ox = (canvas_w - grid_w + label_margin) // 2
-    oy = 90 + (usable_h - grid_h) // 2
+    # Center the grid
+    ox = (canvas_w - grid_w) // 2
+    oy = 80 + label_margin_top + (usable_h - grid_h) // 2
 
     img = Image.new("RGB", (canvas_w, canvas_h), BG_COLOR)
     draw = ImageDraw.Draw(img)
@@ -111,7 +116,7 @@ def main():
     # Title
     title_font = load_font(15)
     draw.text(
-        (canvas_w // 2, 48),
+        (canvas_w // 2, 44),
         "life  in  weeks",
         fill=TEXT_COLOR,
         font=title_font,
@@ -138,16 +143,24 @@ def main():
     print(f"{weeks_past} weeks lived  |  {remaining} remaining  |  {pct:.1f}%")
 
     if SET_WALLPAPER:
-        script = (
-            f'tell application "System Events" to tell every desktop '
-            f'to set picture to "{OUTPUT_PATH}"'
-        )
-        result = subprocess.run(["osascript", "-e", script], capture_output=True)
+        abs_path = os.path.abspath(OUTPUT_PATH)
+        # Finder approach works on macOS Sonoma+ and earlier
+        script = f'tell application "Finder" to set desktop picture to POSIX file "{abs_path}"'
+        result = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
         if result.returncode == 0:
             print("Wallpaper set.")
         else:
-            print(f"Could not auto-set wallpaper — set it manually in System Settings > Wallpaper")
-            print(f"File is at: {OUTPUT_PATH}")
+            # Fallback: System Events approach
+            script2 = (
+                f'tell application "System Events" to tell every desktop '
+                f'to set picture to "{abs_path}"'
+            )
+            result2 = subprocess.run(["osascript", "-e", script2], capture_output=True, text=True)
+            if result2.returncode == 0:
+                print("Wallpaper set.")
+            else:
+                print(f"Could not auto-set wallpaper — set it manually in System Settings > Wallpaper")
+                print(f"File is at: {abs_path}")
 
 
 if __name__ == "__main__":
