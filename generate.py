@@ -97,13 +97,16 @@ def main():
 
     canvas_w, canvas_h = RESOLUTION
 
-    # Reserve space: 80px top for title, 50px for year labels above grid, 60px bottom for stats
+    # Reserve space: 120px top for title (clears menu bar), 50px for year labels above grid,
+    # 140px bottom for stats (clears Dock)
+    top_margin    = 120
     label_margin_top = 50   # space above grid for year labels
-    usable_h = canvas_h - 80 - label_margin_top - 60
+    bottom_margin = 140
+    usable_h = canvas_h - top_margin - label_margin_top - bottom_margin
 
     # Center the grid
     ox = (canvas_w - grid_w) // 2
-    oy = 80 + label_margin_top + (usable_h - grid_h) // 2
+    oy = top_margin + label_margin_top + (usable_h - grid_h) // 2
 
     img = Image.new("RGB", (canvas_w, canvas_h), BG_COLOR)
     draw = ImageDraw.Draw(img)
@@ -113,10 +116,10 @@ def main():
     label_font = load_font(15)
     draw_year_labels(draw, ox, oy, label_font)
 
-    # Title
+    # Title — placed at y=90 to sit below the ~74px menu bar
     title_font = load_font(24)
     draw.text(
-        (canvas_w // 2, 62),
+        (canvas_w // 2, 90),
         "life  in  weeks",
         fill=TEXT_COLOR,
         font=title_font,
@@ -129,9 +132,9 @@ def main():
     stats = (
         f"{weeks_past:,} weeks lived  ·  {remaining:,} remaining  ·  {pct:.1f}% of a {LIFESPAN_YEARS}-year life"
     )
-    stats_font = load_font(11)
+    stats_font = load_font(16)
     draw.text(
-        (canvas_w // 2, oy + grid_h + 32),
+        (canvas_w // 2, oy + grid_h + 60),
         stats,
         fill=TEXT_COLOR,
         font=stats_font,
