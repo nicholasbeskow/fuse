@@ -88,8 +88,28 @@ def main():
 
     today = date.today()
     total_weeks = ROWS * COLS
-    weeks_past = (today - BIRTHDAY).days // 7
-    current_week = weeks_past  # current week index
+
+    # Actual weeks lived (used for stats)
+    weeks_lived = (today - BIRTHDAY).days // 7
+
+    # Grid-aligned week index: use real birthday anniversaries so each column
+    # corresponds to exactly one calendar year of life, not a fixed 364-day year.
+    age = today.year - BIRTHDAY.year
+    try:
+        this_year_birthday = BIRTHDAY.replace(year=today.year)
+    except ValueError:  # Feb 29 birthday in a non-leap year
+        this_year_birthday = BIRTHDAY.replace(year=today.year, day=28)
+    if today < this_year_birthday:
+        age -= 1
+        try:
+            last_birthday = BIRTHDAY.replace(year=today.year - 1)
+        except ValueError:
+            last_birthday = BIRTHDAY.replace(year=today.year - 1, day=28)
+    else:
+        last_birthday = this_year_birthday
+    week_of_year = (today - last_birthday).days // 7
+    weeks_past = age * ROWS + week_of_year
+    current_week = weeks_past
 
     step = CELL_SIZE + CELL_GAP
     grid_w = COLS * step - CELL_GAP
@@ -127,10 +147,10 @@ def main():
     )
 
     # Stats line
-    pct = (weeks_past / total_weeks) * 100
-    remaining = total_weeks - weeks_past
+    pct = (weeks_lived / total_weeks) * 100
+    remaining = total_weeks - weeks_lived
     stats = (
-        f"{weeks_past:,} weeks lived  ·  {remaining:,} remaining  ·  {pct:.1f}% of a {LIFESPAN_YEARS}-year life"
+        f"{weeks_lived:,} weeks lived  ·  {remaining:,} remaining  ·  {pct:.1f}% of a {LIFESPAN_YEARS}-year life"
     )
     stats_font = load_font(22)
     draw.text(
@@ -143,7 +163,7 @@ def main():
 
     img.save(OUTPUT_PATH, "PNG")
     print(f"Saved → {OUTPUT_PATH}")
-    print(f"{weeks_past} weeks lived  |  {remaining} remaining  |  {pct:.1f}%")
+    print(f"{weeks_lived} weeks lived  |  {remaining} remaining  |  {pct:.1f}%")
 
     if SET_WALLPAPER:
         abs_path = os.path.abspath(OUTPUT_PATH)
