@@ -114,7 +114,7 @@ def main():
     draw_year_labels(draw, ox, oy, label_font)
 
     # Title
-    title_font = load_font(15)
+    title_font = load_font(24)
     draw.text(
         (canvas_w // 2, 62),
         "life  in  weeks",
