@@ -97,8 +97,8 @@ def main():
 
     canvas_w, canvas_h = RESOLUTION
 
-    # Reserve space: 80px top for title, 40px for year labels above grid, 60px bottom for stats
-    label_margin_top = 40   # space above grid for year labels
+    # Reserve space: 80px top for title, 50px for year labels above grid, 60px bottom for stats
+    label_margin_top = 50   # space above grid for year labels
     usable_h = canvas_h - 80 - label_margin_top - 60
 
     # Center the grid
@@ -110,13 +110,13 @@ def main():
 
     draw_grid(draw, ox, oy, weeks_past, current_week)
 
-    label_font = load_font(11)
+    label_font = load_font(15)
     draw_year_labels(draw, ox, oy, label_font)
 
     # Title
-    title_font = load_font(15)
+    title_font = load_font(24)
     draw.text(
-        (canvas_w // 2, 44),
+        (canvas_w // 2, 62),
         "life  in  weeks",
         fill=TEXT_COLOR,
         font=title_font,
