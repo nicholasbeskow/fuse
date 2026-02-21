@@ -113,11 +113,11 @@ def main():
 
     draw_grid(draw, ox, oy, weeks_past, current_week)
 
-    label_font = load_font(15)
+    label_font = load_font(22)
     draw_year_labels(draw, ox, oy, label_font)
 
     # Title — placed at y=90 to sit below the ~74px menu bar
-    title_font = load_font(24)
+    title_font = load_font(36)
     draw.text(
         (canvas_w // 2, 90),
         "life  in  weeks",
@@ -132,7 +132,7 @@ def main():
     stats = (
         f"{weeks_past:,} weeks lived  ·  {remaining:,} remaining  ·  {pct:.1f}% of a {LIFESPAN_YEARS}-year life"
     )
-    stats_font = load_font(16)
+    stats_font = load_font(22)
     draw.text(
         (canvas_w // 2, oy + grid_h + 60),
         stats,
