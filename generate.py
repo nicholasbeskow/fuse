@@ -81,10 +81,8 @@ def draw_year_labels(draw, ox, oy, font):
 
 
 def main():
-    # Ensure output directory exists and remove any existing wallpaper
+    # Ensure output directory exists
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    if os.path.exists(OUTPUT_PATH):
-        os.remove(OUTPUT_PATH)
 
     today = date.today()
     total_weeks = ROWS * COLS

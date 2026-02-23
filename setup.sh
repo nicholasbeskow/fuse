@@ -45,8 +45,8 @@ cat > "$PLIST" <<EOF
 EOF
 
 # Unload first in case it was already registered, then load fresh
-launchctl unload "$PLIST" 2>/dev/null || true
-launchctl load "$PLIST"
+launchctl bootout gui/$(id -u) "$PLIST" 2>/dev/null || true
+launchctl bootstrap gui/$(id -u) "$PLIST"
 
 echo ""
 echo "Done. Wallpaper will refresh every Monday at 9 AM."
